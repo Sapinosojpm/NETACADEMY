@@ -1,26 +1,184 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #060608;
+  --foreground: #fafafa;
+  --card: #09090b;
+  --card-foreground: #fafafa;
+  --border: #141416;
+  --border-hover: #27272a;
+  --primary: #ffffff;
+  --accent: #10b981;
+  --destructive: #ef4444;
+  --muted: #71717a;
+
+  /* OSI Layer HSL Hue Coordinates */
+  --osi-l1-hue: 38;    /* Amber */
+  --osi-l2-hue: 199;   /* Sky Blue */
+  --osi-l3-hue: 271;   /* Violet */
+  --osi-l4-7-hue: 150; /* Emerald */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-muted-text: var(--muted);
+  
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #060608;
+}
+::-webkit-scrollbar-thumb {
+  background: #18181b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #27272a;
+}
+
+/* Premium Blueprint canvas styling */
+.blueprint-canvas {
+  background-color: #040406;
+  background-image: 
+    radial-gradient(#18181b 1px, transparent 1px),
+    linear-gradient(to right, #09090c 1px, transparent 1px),
+    linear-gradient(to bottom, #09090c 1px, transparent 1px);
+  background-size: 20px 20px, 100px 100px, 100px 100px;
+  background-position: center center;
+  position: relative;
+}
+
+/* Glassmorphism panel styles */
+.glass-panel {
+  background: rgba(9, 9, 11, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(39, 39, 42, 0.4);
+}
+
+.glow-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(9, 9, 11, 0.4);
+}
+.glow-card:hover {
+  border-color: rgba(63, 63, 70, 0.6);
+  background: rgba(18, 18, 22, 0.6);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+}
+
+/* Keyframes for refined animations */
+@keyframes data-flow {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-data-flow {
+  stroke-dasharray: 6 6;
+  animation: data-flow 1.2s infinite linear;
+}
+
+@keyframes packet-explosion {
+  0% {
+    transform: scale(0.6) translate(-50%, -50%);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6) translate(-50%, -50%);
+    opacity: 0;
+  }
+}
+
+.animate-explosion {
+  animation: packet-explosion 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Antennas pulsing, wireless radio waves */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.35);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+.animate-ring-pulse {
+  animation: pulse-ring 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes wireless-wave-flow {
+  0% {
+    stroke-dashoffset: 12;
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.9;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.3;
+  }
+}
+
+.animate-wireless {
+  stroke-dasharray: 4 2;
+  animation: wireless-wave-flow 2s infinite linear;
+}
+
+/* Soft floating animation for nodes */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Node glows based on status */
+.accepted-glow {
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.rejected-glow {
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+.collided-glow {
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+}
+
+.sending-glow {
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
