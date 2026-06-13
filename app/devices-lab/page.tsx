@@ -2482,79 +2482,82 @@ export default function DevicesLab() {
                   </h4>
                   
                   {/* OSI Layer Mode Selector */}
-                   <div className="space-y-3">
-                     <label className="text-xs text-zinc-500 block font-bold uppercase tracking-wider">
+                   <div className="space-y-3.5">
+                     <label className="text-xs text-zinc-400 block font-bold uppercase tracking-wider">
                        Select OSI Layer / Device Mode
                      </label>
                      
-                     <div className="space-y-2.5">
+                     <div className="space-y-3">
                        {[
                          {
-                           title: "Layer 1 - Physical (Amber)",
+                           title: "Layer 1 - Physical",
+                           dotColor: "bg-amber-500",
                            modes: [
                              { id: "hub", name: "Hub" }
                            ],
-                           activeColorClass: "border-amber-500/50 bg-amber-500/5 text-amber-400 font-extrabold shadow-[0_0_10px_rgba(245,158,11,0.05)]",
-                           inactiveColorClass: "text-zinc-400 hover:text-zinc-250 hover:bg-zinc-900/40 border-transparent",
-                           labelClass: "text-amber-500/75"
+                           activeColorClass: "border-amber-500/50 bg-amber-500/10 text-amber-400 font-extrabold shadow-[0_0_12px_rgba(245,158,11,0.15)]",
+                           inactiveColorClass: "border-zinc-800/80 bg-zinc-900/10 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 hover:bg-zinc-800/20"
                          },
                          {
-                           title: "Layer 2 - Data Link (Sky Blue)",
+                           title: "Layer 2 - Data Link",
+                           dotColor: "bg-sky-500",
                            modes: [
                              { id: "switch", name: "Switch" },
                              { id: "bridge", name: "Bridge" },
                              { id: "vlan", name: "VLAN Trunk" }
                            ],
-                           activeColorClass: "border-sky-500/50 bg-sky-500/5 text-sky-400 font-extrabold shadow-[0_0_10px_rgba(14,165,233,0.05)]",
-                           inactiveColorClass: "text-zinc-400 hover:text-zinc-250 hover:bg-zinc-900/40 border-transparent",
-                           labelClass: "text-sky-500/75"
+                           activeColorClass: "border-sky-500/50 bg-sky-500/10 text-sky-400 font-extrabold shadow-[0_0_12px_rgba(14,165,233,0.15)]",
+                           inactiveColorClass: "border-zinc-800/80 bg-zinc-900/10 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 hover:bg-zinc-800/20"
                          },
                          {
-                           title: "Layer 3 - Network (Violet)",
+                           title: "Layer 3 - Network",
+                           dotColor: "bg-violet-500",
                            modes: [
                              { id: "router", name: "Router" },
                              { id: "nat", name: "NAT/PAT" }
                            ],
-                           activeColorClass: "border-violet-500/50 bg-violet-500/5 text-violet-400 font-extrabold shadow-[0_0_10px_rgba(168,85,247,0.05)]",
-                           inactiveColorClass: "text-zinc-400 hover:text-zinc-250 hover:bg-zinc-900/40 border-transparent",
-                           labelClass: "text-violet-500/75"
+                           activeColorClass: "border-violet-500/50 bg-violet-500/10 text-violet-400 font-extrabold shadow-[0_0_12px_rgba(168,85,247,0.15)]",
+                           inactiveColorClass: "border-zinc-800/80 bg-zinc-900/10 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 hover:bg-zinc-800/20"
                          },
                          {
-                           title: "Layer 4-7 - Services & Security (Emerald)",
+                           title: "Layer 4-7 - Services & Security",
+                           dotColor: "bg-emerald-500",
                            modes: [
                              { id: "firewall", name: "Firewall" },
                              { id: "wlc", name: "WLC AP" },
                              { id: "dhcp", name: "DHCP/DNS" },
                              { id: "server", name: "Config Server" }
                            ],
-                           activeColorClass: "border-emerald-500/50 bg-emerald-500/5 text-emerald-400 font-extrabold shadow-[0_0_10px_rgba(16,185,129,0.05)]",
-                           inactiveColorClass: "text-zinc-400 hover:text-zinc-250 hover:bg-zinc-900/40 border-transparent",
-                           labelClass: "text-emerald-500/75"
+                           activeColorClass: "border-emerald-500/50 bg-emerald-500/10 text-emerald-400 font-extrabold shadow-[0_0_12px_rgba(16,185,129,0.15)]",
+                           inactiveColorClass: "border-zinc-800/80 bg-zinc-900/10 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 hover:bg-zinc-800/20"
                          },
                          {
-                           title: "Networking Cast (Orange)",
+                           title: "Networking Cast Modes",
+                           dotColor: "bg-orange-500",
                            modes: [
                              { id: "unicast", name: "Unicast" },
                              { id: "broadcast", name: "Broadcast" },
                              { id: "multicast", name: "Multicast" },
                              { id: "anycast", name: "Anycast" }
                            ],
-                           activeColorClass: "border-orange-500/50 bg-orange-500/5 text-orange-400 font-extrabold shadow-[0_0_10px_rgba(249,115,22,0.05)]",
-                           inactiveColorClass: "text-zinc-400 hover:text-zinc-250 hover:bg-zinc-900/40 border-transparent",
-                           labelClass: "text-orange-500/75"
+                           activeColorClass: "border-orange-500/50 bg-orange-500/10 text-orange-400 font-extrabold shadow-[0_0_12px_rgba(249,115,22,0.15)]",
+                           inactiveColorClass: "border-zinc-800/80 bg-zinc-900/10 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 hover:bg-zinc-800/20"
                          }
                        ].map((grp, gIdx) => (
-                         <div key={gIdx} className="bg-zinc-950/40 p-2 rounded-xl border border-zinc-850/80">
-                           <span className={`text-xs font-extrabold uppercase tracking-widest block mb-1.5 ${grp.labelClass}`}>
-                             {grp.title}
-                           </span>
-                           <div className="grid grid-cols-3 gap-1.5">
+                         <div key={gIdx} className="space-y-1.5">
+                           <div className="flex items-center gap-2">
+                             <span className={`w-1.5 h-1.5 rounded-full ${grp.dotColor}`} />
+                             <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                               {grp.title}
+                             </span>
+                           </div>
+                           <div className="flex flex-wrap gap-1.5">
                              {grp.modes.map((m) => (
                                <button
                                  key={m.id}
                                  disabled={isSimulating}
                                  onClick={() => handleModeChange(m.id as DeviceMode)}
-                                 className={`py-1.5 text-[8.5px] font-bold rounded-lg uppercase tracking-wider border transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${
+                                 className={`py-1 px-3 text-[11px] font-bold rounded-full uppercase tracking-wider border transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed ${
                                    mode === m.id ? grp.activeColorClass : grp.inactiveColorClass
                                  }`}
                                >
