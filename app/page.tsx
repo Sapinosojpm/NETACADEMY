@@ -46,7 +46,15 @@ export default function Home() {
     // Load local stats
     const saved = localStorage.getItem("ccna_stats");
     if (saved) {
-      setStats(JSON.parse(saved));
+      try {
+        const parsed = JSON.parse(saved);
+        setStats(prev => ({
+          ...prev,
+          ...parsed
+        }));
+      } catch (e) {
+        console.error("Error parsing stats", e);
+      }
     }
 
     // Set Daily Challenge Question deterministically based on date
@@ -79,10 +87,14 @@ export default function Home() {
     }
   };
 
-  // Calculate overall progress percentage
+  // Calculate overall progress percentage safely
+  const cliLabsCompleted = stats?.cliLabsCompleted || 0;
+  const flashcardsReviewed = stats?.flashcardsReviewed || 0;
+  const totalQuestionsSolved = stats?.totalQuestionsSolved || 0;
+
   const maxItems = 45; // 2 CLI labs + 35 flashcards + 8 questions
-  const currentItems = (stats.cliLabsCompleted * 5) + stats.flashcardsReviewed + stats.totalQuestionsSolved;
-  const progressPct = Math.min(100, Math.round((currentItems / maxItems) * 100));
+  const currentItems = (cliLabsCompleted * 5) + flashcardsReviewed + totalQuestionsSolved;
+  const progressPct = Math.min(100, Math.round((currentItems / maxItems) * 100)) || 0;
 
   const modules = [
     {
@@ -171,15 +183,15 @@ export default function Home() {
               <div className="grid grid-cols-3 gap-4 pt-3 text-center">
                 <div className="bg-zinc-950/40 p-3 rounded-xl border border-zinc-800">
                   <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">CLI Labs</span>
-                  <span className="text-sm font-extrabold text-zinc-200 mt-0.5 block">{stats.cliLabsCompleted}/2</span>
+                  <span className="text-sm font-extrabold text-zinc-200 mt-0.5 block">{cliLabsCompleted}/2</span>
                 </div>
                 <div className="bg-zinc-950/40 p-3 rounded-xl border border-zinc-800">
                   <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Cards Reviewed</span>
-                  <span className="text-sm font-extrabold text-zinc-200 mt-0.5 block">{stats.flashcardsReviewed}</span>
+                  <span className="text-sm font-extrabold text-zinc-200 mt-0.5 block">{flashcardsReviewed}</span>
                 </div>
                 <div className="bg-zinc-950/40 p-3 rounded-xl border border-zinc-800">
                   <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Solved Qs</span>
-                  <span className="text-sm font-extrabold text-zinc-200 mt-0.5 block">{stats.totalQuestionsSolved}</span>
+                  <span className="text-sm font-extrabold text-zinc-200 mt-0.5 block">{totalQuestionsSolved}</span>
                 </div>
               </div>
             </div>

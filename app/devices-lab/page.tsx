@@ -259,20 +259,26 @@ export default function DevicesLab() {
     addLog(`Switched to ${newMode.toUpperCase()} Mode.`);
   };
 
+  // Y-offset to align SVG cable lines with device icon centers (icons are at top of flex-col groups)
+  const LINE_Y_OFFSET_PC = -15;
+  const LINE_Y_OFFSET_CENTER = -10;
+
   const getNodeLoc = (name: string): [number, number] => {
+    const isCenterDevice = ["Central Device", "Switch 1", "Switch 2", "L2 Switch"].includes(name);
+    const yOff = isCenterDevice ? LINE_Y_OFFSET_CENTER : LINE_Y_OFFSET_PC;
     const n = nodes[name];
-    if (n) return [n.x, n.y];
-    if (name === "PC A" || name === "Laptop A") return [80, 70];
-    if (name === "PC B" || name === "WLC") return [420, 70];
-    if (name === "PC C" || name === "Lightweight AP") return [80, 230];
+    if (n) return [n.x, n.y + yOff];
+    if (name === "PC A" || name === "Laptop A") return [80, 70 + yOff];
+    if (name === "PC B" || name === "WLC") return [420, 70 + yOff];
+    if (name === "PC C" || name === "Lightweight AP") return [80, 230 + yOff];
     if (name === "PC D" || name === "Server") {
-      if (mode === "server") return [340, 230];
-      return [420, 230];
+      if (mode === "server") return [340, 230 + yOff];
+      return [420, 230 + yOff];
     }
-    if (name === "Switch 1") return [180, 150];
-    if (name === "Switch 2") return [320, 150];
-    if (name === "L2 Switch" || name === "Switch" || name === "Central Device") return [250, 150];
-    return [250, 150];
+    if (name === "Switch 1") return [180, 150 + yOff];
+    if (name === "Switch 2") return [320, 150 + yOff];
+    if (name === "L2 Switch" || name === "Switch" || name === "Central Device") return [250, 150 + yOff];
+    return [250, 150 + yOff];
   };
 
   const center = getNodeLoc(mode === "server" ? "L2 Switch" : "Central Device");
@@ -1422,7 +1428,7 @@ export default function DevicesLab() {
       // Animate PC A sending discover, dropping at Switch
       setIsSimulating(true);
       setNodes(prev => ({ ...prev, "PC A": { ...prev["PC A"], status: "sending" } }));
-      const pcaLocCurrent = [nodes["PC A"].x, nodes["PC A"].y] as [number, number];
+      const pcaLocCurrent = getNodeLoc("PC A");
       setPackets([{ id: "dh_err", from: pcaLocCurrent, to: center, color: "text-amber-500", delay: 0, duration: 0.8, status: "pending", label: "DHCP Discover" }]);
       
       setTimeout(() => {
@@ -1444,8 +1450,8 @@ export default function DevicesLab() {
       "PC A": { ...prev["PC A"], status: "sending", ip: "0.0.0.0" }
     }));
 
-    const pcaLocCurrent = [nodes["PC A"].x, nodes["PC A"].y] as [number, number];
-    const serverLocCurrent = [nodes["Server"].x, nodes["Server"].y] as [number, number];
+    const pcaLocCurrent = getNodeLoc("PC A");
+    const serverLocCurrent = getNodeLoc("Server");
 
     // Discover: PC A -> Switch -> Server
     setPackets([
@@ -1587,8 +1593,8 @@ export default function DevicesLab() {
       "PC A": { ...prev["PC A"], status: "sending" }
     }));
 
-    const pcaLocCurrent = [nodes["PC A"].x, nodes["PC A"].y] as [number, number];
-    const serverLocCurrent = [nodes["Server"].x, nodes["Server"].y] as [number, number];
+    const pcaLocCurrent = getNodeLoc("PC A");
+    const serverLocCurrent = getNodeLoc("Server");
 
     // DNS Request PC A -> Switch -> Server
     setPackets([
@@ -1691,8 +1697,8 @@ export default function DevicesLab() {
       "PC A": { ...prev["PC A"], status: "sending" }
     }));
 
-    const pcaLocCurrent = [nodes["PC A"].x, nodes["PC A"].y] as [number, number];
-    const serverLocCurrent = [nodes["Server"].x, nodes["Server"].y] as [number, number];
+    const pcaLocCurrent = getNodeLoc("PC A");
+    const serverLocCurrent = getNodeLoc("Server");
 
     // HTTP Request PC A -> Switch -> Server
     setPackets([
@@ -1904,17 +1910,17 @@ export default function DevicesLab() {
                             {/* AP to Switch */}
                             <g>
                               {activeAP && <line x1={pccLoc[0]} y1={pccLoc[1]} x2={center[0]} y2={center[1]} stroke="#10b981" strokeWidth="6" opacity="0.15" />}
-                              <line x1={pccLoc[0]} y1={pccLoc[1]} x2={center[0]} y2={center[1]} stroke={activeAP ? "#10b981" : "#3f3f46"} strokeWidth={activeAP ? "2.5" : "1.5"} className={activeAP ? "animate-data-flow" : ""} />
+                              <line x1={pccLoc[0]} y1={pccLoc[1]} x2={center[0]} y2={center[1]} stroke={activeAP ? "#10b981" : "#71717a"} strokeWidth={activeAP ? "2.5" : "2"} className={activeAP ? "animate-data-flow" : ""} />
                             </g>
                             {/* WLC to Switch */}
                             <g>
                               {activeWLC && <line x1={pcbLoc[0]} y1={pcbLoc[1]} x2={center[0]} y2={center[1]} stroke="#10b981" strokeWidth="6" opacity="0.15" />}
-                              <line x1={pcbLoc[0]} y1={pcbLoc[1]} x2={center[0]} y2={center[1]} stroke={activeWLC ? "#10b981" : "#3f3f46"} strokeWidth={activeWLC ? "2.5" : "1.5"} className={activeWLC ? "animate-data-flow" : ""} />
+                              <line x1={pcbLoc[0]} y1={pcbLoc[1]} x2={center[0]} y2={center[1]} stroke={activeWLC ? "#10b981" : "#71717a"} strokeWidth={activeWLC ? "2.5" : "2"} className={activeWLC ? "animate-data-flow" : ""} />
                             </g>
                             {/* Server to Switch */}
                             <g>
                               {activeServer && <line x1={pcdLoc[0]} y1={pcdLoc[1]} x2={center[0]} y2={center[1]} stroke="#10b981" strokeWidth="6" opacity="0.15" />}
-                              <line x1={pcdLoc[0]} y1={pcdLoc[1]} x2={center[0]} y2={center[1]} stroke={activeServer ? "#10b981" : "#3f3f46"} strokeWidth={activeServer ? "2.5" : "1.5"} className={activeServer ? "animate-data-flow" : ""} />
+                              <line x1={pcdLoc[0]} y1={pcdLoc[1]} x2={center[0]} y2={center[1]} stroke={activeServer ? "#10b981" : "#71717a"} strokeWidth={activeServer ? "2.5" : "2"} className={activeServer ? "animate-data-flow" : ""} />
                             </g>
                           </>
                         );
@@ -1929,24 +1935,24 @@ export default function DevicesLab() {
                           <>
                             <g>
                               {actA && <line x1={pcaLoc[0]} y1={pcaLoc[1]} x2={sw1Loc[0]} y2={sw1Loc[1]} stroke="#0ea5e9" strokeWidth="6" opacity="0.15" />}
-                              <line x1={pcaLoc[0]} y1={pcaLoc[1]} x2={sw1Loc[0]} y2={sw1Loc[1]} stroke={actA ? "#0ea5e9" : "#3f3f46"} strokeWidth={actA ? "2.5" : "1.5"} className={actA ? "animate-data-flow" : ""} />
+                              <line x1={pcaLoc[0]} y1={pcaLoc[1]} x2={sw1Loc[0]} y2={sw1Loc[1]} stroke={actA ? "#0ea5e9" : "#71717a"} strokeWidth={actA ? "2.5" : "2"} className={actA ? "animate-data-flow" : ""} />
                             </g>
                             <g>
                               {actC && <line x1={pccLoc[0]} y1={pccLoc[1]} x2={sw1Loc[0]} y2={sw1Loc[1]} stroke="#0ea5e9" strokeWidth="6" opacity="0.15" />}
-                              <line x1={pccLoc[0]} y1={pccLoc[1]} x2={sw1Loc[0]} y2={sw1Loc[1]} stroke={actC ? "#0ea5e9" : "#3f3f46"} strokeWidth={actC ? "2.5" : "1.5"} className={actC ? "animate-data-flow" : ""} />
+                              <line x1={pccLoc[0]} y1={pccLoc[1]} x2={sw1Loc[0]} y2={sw1Loc[1]} stroke={actC ? "#0ea5e9" : "#71717a"} strokeWidth={actC ? "2.5" : "2"} className={actC ? "animate-data-flow" : ""} />
                             </g>
                             <g>
                               {actB && <line x1={pcbLoc[0]} y1={pcbLoc[1]} x2={sw2Loc[0]} y2={sw2Loc[1]} stroke="#0ea5e9" strokeWidth="6" opacity="0.15" />}
-                              <line x1={pcbLoc[0]} y1={pcbLoc[1]} x2={sw2Loc[0]} y2={sw2Loc[1]} stroke={actB ? "#0ea5e9" : "#3f3f46"} strokeWidth={actB ? "2.5" : "1.5"} className={actB ? "animate-data-flow" : ""} />
+                              <line x1={pcbLoc[0]} y1={pcbLoc[1]} x2={sw2Loc[0]} y2={sw2Loc[1]} stroke={actB ? "#0ea5e9" : "#71717a"} strokeWidth={actB ? "2.5" : "2"} className={actB ? "animate-data-flow" : ""} />
                             </g>
                             <g>
                               {actD && <line x1={pcdLoc[0]} y1={pcdLoc[1]} x2={sw2Loc[0]} y2={sw2Loc[1]} stroke="#0ea5e9" strokeWidth="6" opacity="0.15" />}
-                              <line x1={pcdLoc[0]} y1={pcdLoc[1]} x2={sw2Loc[0]} y2={sw2Loc[1]} stroke={actD ? "#0ea5e9" : "#3f3f46"} strokeWidth={actD ? "2.5" : "1.5"} className={actD ? "animate-data-flow" : ""} />
+                              <line x1={pcdLoc[0]} y1={pcdLoc[1]} x2={sw2Loc[0]} y2={sw2Loc[1]} stroke={actD ? "#0ea5e9" : "#71717a"} strokeWidth={actD ? "2.5" : "2"} className={actD ? "animate-data-flow" : ""} />
                             </g>
                             {/* Trunk line */}
                             <g>
                               {isTrunkActive && <line x1={sw1Loc[0]} y1={sw1Loc[1]} x2={sw2Loc[0]} y2={sw2Loc[1]} stroke="#0ea5e9" strokeWidth="8" opacity="0.25" />}
-                              <line x1={sw1Loc[0]} y1={sw1Loc[1]} x2={sw2Loc[0]} y2={sw2Loc[1]} stroke={isTrunkActive ? "#0ea5e9" : "#27272a"} strokeWidth={isTrunkActive ? "3.5" : "2.5"} strokeDasharray="4 2" className={isTrunkActive ? "animate-data-flow" : ""} />
+                              <line x1={sw1Loc[0]} y1={sw1Loc[1]} x2={sw2Loc[0]} y2={sw2Loc[1]} stroke={isTrunkActive ? "#0ea5e9" : "#71717a"} strokeWidth={isTrunkActive ? "3.5" : "2.5"} strokeDasharray="4 2" className={isTrunkActive ? "animate-data-flow" : ""} />
                             </g>
                           </>
                         );
@@ -1965,8 +1971,8 @@ export default function DevicesLab() {
                                 y1={y1}
                                 x2={x2}
                                 y2={y2}
-                                stroke={isLineActive ? "#10b981" : "#3f3f46"}
-                                strokeWidth={isLineActive ? "2.5" : "1.5"}
+                                stroke={isLineActive ? "#10b981" : "#71717a"}
+                                strokeWidth={isLineActive ? "2.5" : "2"}
                                 className={isLineActive ? "animate-data-flow" : ""}
                               />
                             </g>
@@ -1997,21 +2003,22 @@ export default function DevicesLab() {
                         return Object.values(nodes)
                           .filter(node => node.name !== "Central Device")
                           .map((node) => {
+                            const [nlX, nlY] = getNodeLoc(node.name);
                             const isLineActive = isSimulating && 
                               packets.some(p => p.status === "pending" && 
-                                ((p.from[0] === node.x && p.from[1] === node.y) || 
-                                 (p.to[0] === node.x && p.to[1] === node.y)));
+                                ((p.from[0] === nlX && p.from[1] === nlY) || 
+                                 (p.to[0] === nlX && p.to[1] === nlY)));
 
                             return (
                               <g key={node.name}>
-                                {isLineActive && <line x1={node.x} y1={node.y} x2={center[0]} y2={center[1]} stroke={themeColor} strokeWidth="6" opacity="0.15" />}
+                                {isLineActive && <line x1={nlX} y1={nlY} x2={center[0]} y2={center[1]} stroke={themeColor} strokeWidth="6" opacity="0.15" />}
                                 <line
-                                  x1={node.x}
-                                  y1={node.y}
+                                  x1={nlX}
+                                  y1={nlY}
                                   x2={center[0]}
                                   y2={center[1]}
-                                  stroke={isLineActive ? themeColor : "#3f3f46"}
-                                  strokeWidth={isLineActive ? "2.5" : "1.5"}
+                                  stroke={isLineActive ? themeColor : "#71717a"}
+                                  strokeWidth={isLineActive ? "2.5" : "2"}
                                   className={isLineActive ? "animate-data-flow" : ""}
                                 />
                               </g>
