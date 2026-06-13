@@ -2175,8 +2175,6 @@ export default function DevicesLab() {
                         <div
                           key={node.name}
                           className={`absolute flex flex-col items-center select-none ${
-                            isNodeIdle ? "animate-float" : ""
-                          } ${
                             cableMode
                               ? "cursor-crosshair"
                               : draggingNode === node.name
@@ -2195,42 +2193,44 @@ export default function DevicesLab() {
                             }
                           }}
                         >
-                          <div className={`p-2 rounded-lg border transition-all duration-250 flex items-center justify-center relative ${statusColorMap[node.status]}`}>
-                            {node.name === "Laptop A" ? (
-                              <Wifi size={20} />
-                            ) : node.name === "Server" || node.name === "WLC" || (node.role && node.role.toLowerCase().includes("server")) ? (
-                              <Server size={20} />
-                            ) : node.name === "L2 Switch" || node.role === "Switch" ? (
-                              <SwitchIcon size={20} className="text-zinc-200" />
-                            ) : (
-                              <PCIcon size={20} />
-                            )}
+                          <div className={`flex flex-col items-center ${isNodeIdle ? "animate-float" : ""}`}>
+                            <div className={`p-2 rounded-lg border transition-all duration-250 flex items-center justify-center relative ${statusColorMap[node.status]}`}>
+                              {node.name === "Laptop A" ? (
+                                <Wifi size={20} />
+                              ) : node.name === "Server" || node.name === "WLC" || (node.role && node.role.toLowerCase().includes("server")) ? (
+                                <Server size={20} />
+                              ) : node.name === "L2 Switch" || node.role === "Switch" ? (
+                                <SwitchIcon size={20} className="text-zinc-200" />
+                              ) : (
+                                <PCIcon size={20} />
+                              )}
+                              
+                              {/* Success/error status indicator dots */}
+                              {node.status === "accepted" && (
+                                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-zinc-950 block" />
+                              )}
+                              {node.status === "rejected" && (
+                                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-zinc-650 border-2 border-zinc-950 block" />
+                              )}
+                              {node.status === "collided" && (
+                                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 border-2 border-zinc-950 block" />
+                              )}
+                            </div>
+                          
+                            <span className="text-xs font-bold text-zinc-400 mt-1.5">
+                              {["firewall", "nat", "dhcp", "vlan"].includes(mode) && node.role ? node.role : node.name}
+                            </span>
                             
-                            {/* Success/error status indicator dots */}
-                            {node.status === "accepted" && (
-                              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-zinc-950 block" />
-                            )}
-                            {node.status === "rejected" && (
-                              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-zinc-650 border-2 border-zinc-950 block" />
-                            )}
-                            {node.status === "collided" && (
-                              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 border-2 border-zinc-950 block" />
+                            {node.ip && (
+                              <span className="text-xs font-mono text-zinc-500 mt-0.5">
+                                {mode === "server" && node.name === "PC A" && node.ip === "0.0.0.0"
+                                  ? "UNCONFIGURED (0.0.0.0)"
+                                  : node.ip}
+                              </span>
                             )}
                           </div>
-                        
-                        <span className="text-xs font-bold text-zinc-400 mt-1.5">
-                          {["firewall", "nat", "dhcp", "vlan"].includes(mode) && node.role ? node.role : node.name}
-                        </span>
-                        
-                        {node.ip && (
-                          <span className="text-xs font-mono text-zinc-500 mt-0.5">
-                            {mode === "server" && node.name === "PC A" && node.ip === "0.0.0.0"
-                              ? "UNCONFIGURED (0.0.0.0)"
-                              : node.ip}
-                          </span>
-                        )}
-                      </div>
-                    );
+                        </div>
+                      );
                   })}
 
                   {/* Toolbox Shelf in Server Mode */}
