@@ -10,7 +10,7 @@ import {
   CollisionIcon,
   RouterIcon
 } from "../components/icons";
-import { RotateCcw, Send, BookOpen, Layers, RefreshCw, ShieldAlert, Cpu, Wifi, Server, Play, ExternalLink } from "lucide-react";
+import { RotateCcw, Send, BookOpen, Layers, RefreshCw, ShieldAlert, Cpu, Wifi, Server, Play, ExternalLink, Terminal } from "lucide-react";
 
 type DeviceMode = "hub" | "switch" | "bridge" | "router" | "firewall" | "wlc" | "vlan" | "nat" | "dhcp" | "server" | "unicast" | "broadcast" | "multicast" | "anycast";
 
@@ -2470,13 +2470,490 @@ export default function DevicesLab() {
                     </div>
                   )}
                 </div>
-              </div>
 
-              {/* Controls & Log Column */}
-              <div className="flex flex-col gap-6 min-h-0 overflow-hidden">
-                
-                {/* Controls Card */}
-                <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 flex flex-col gap-5 overflow-y-auto flex-1 min-h-0">
+                {/* Diagnostics & Event Log Panel Row */}
+                <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-5 overflow-hidden">
+                  
+                  {/* Diagnostics & Status Console Panel */}
+                  <div className="flex-1 min-h-0 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-5 flex flex-col overflow-hidden">
+                  <h4 className="font-extrabold text-xs tracking-wider uppercase text-zinc-450 mb-3 shrink-0 flex items-center gap-2">
+                    <Cpu className="w-4 h-4 text-cyan-400" />
+                    Diagnostics & Status Console
+                  </h4>
+                  <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-4 pr-1">
+                    {/* 0. Hub Status Information */}
+                    {mode === "hub" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Hub (Layer 1) Status</span>
+                        <div className="space-y-1.5 text-zinc-400">
+                          <div className="flex justify-between">
+                            <span>Collision Domain:</span>
+                            <span className="text-amber-400 font-bold">1 Shared Collision Domain</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Broadcast Domain:</span>
+                            <span className="text-zinc-300">1 Broadcast Domain</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Port Duplex:</span>
+                            <span className="text-amber-500 font-bold">Half-Duplex</span>
+                          </div>
+                          <div className="border-t border-zinc-900/60 pt-1.5 leading-relaxed text-zinc-500 font-sans">
+                            No logic table. Hubs blindly replicate signals to all other interfaces. Simultaneous sends cause packet collisions.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 1. Switch CAM Table */}
+                    {mode === "switch" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">MAC Address Table (CAM)</span>
+                        {camTable.length === 0 ? (
+                          <span className="text-zinc-500 italic block py-0.5">No entries learned yet. Run simulation to populate.</span>
+                        ) : (
+                          <table className="w-full text-left">
+                            <thead>
+                              <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
+                                <th className="pr-2">VLAN</th>
+                                <th className="pr-2">MAC Address</th>
+                                <th className="pr-2">Port</th>
+                                <th>Type</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-zinc-900/40">
+                              {camTable.map((e, idx) => (
+                                <tr key={idx} className="text-zinc-300">
+                                  <td className="pr-2">{e.vlan}</td>
+                                  <td className="pr-2 text-sky-400 font-bold">{e.mac}</td>
+                                  <td className="pr-2 font-semibold">{e.port}</td>
+                                  <td className="text-zinc-500">{e.type}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        )}
+                      </div>
+                    )}
+
+                    {/* 2. Bridge Filtering DB */}
+                    {mode === "bridge" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Bridge Filtering Database</span>
+                        <table className="w-full text-left">
+                          <thead>
+                            <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
+                              <th className="pr-2">MAC Address</th>
+                              <th className="pr-2">Port</th>
+                              <th>Segment</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { mac: "000A.0001.0001", port: "Port 1", seg: "Left (1)" },
+                              { mac: "000A.0001.0003", port: "Port 1", seg: "Left (1)" },
+                              { mac: "000B.0002.0002", port: "Port 2", seg: "Right (2)" },
+                              { mac: "000B.0002.0004", port: "Port 2", seg: "Right (2)" }
+                            ].map((e, idx) => (
+                              <tr key={idx} className="text-zinc-300">
+                                <td className="pr-2 text-sky-400 font-bold">{e.mac}</td>
+                                <td className="pr-2 font-semibold">{e.port}</td>
+                                <td className="text-zinc-500">{e.seg}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* 3. Router Routing Table */}
+                    {mode === "router" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Router Routing Table</span>
+                        <table className="w-full text-left">
+                          <thead>
+                            <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
+                              <th className="pr-2">Network</th>
+                              <th className="pr-2">Gateway</th>
+                              <th className="pr-2">Interface</th>
+                              <th>Type</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { net: "192.168.1.0/24", gw: "0.0.0.0", int: "Fa0/0", type: "Direct" },
+                              { net: "10.0.0.0/24", gw: "0.0.0.0", int: "Fa0/1", type: "Direct" }
+                            ].map((e, idx) => (
+                              <tr key={idx} className="text-zinc-300">
+                                <td className="pr-2 text-violet-400 font-bold">{e.net}</td>
+                                <td className="pr-2">{e.gw}</td>
+                                <td className="pr-2 font-semibold">{e.int}</td>
+                                <td className="text-zinc-550">{e.type}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* 4. VLAN Port Database */}
+                    {mode === "vlan" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">VLAN Database</span>
+                        <table className="w-full text-left">
+                          <thead>
+                            <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
+                              <th className="pr-2">Port</th>
+                              <th className="pr-2">VLAN</th>
+                              <th className="pr-2">Name</th>
+                              <th>Mode</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { port: "Fa0/1", vlan: "10", name: "HR", mode: "Access" },
+                              { port: "Fa0/2", vlan: "10", name: "HR", mode: "Access" },
+                              { port: "Fa0/3", vlan: "20", name: "IT", mode: "Access" },
+                              { port: "Fa0/4", vlan: "20", name: "IT", mode: "Access" },
+                              { port: "Gi0/1", vlan: "10,20", name: "Trunk", mode: "Trunk" }
+                            ].map((e, idx) => (
+                              <tr key={idx} className="text-zinc-300">
+                                <td className="pr-2 font-bold text-sky-400">{e.port}</td>
+                                <td className="pr-2">{e.vlan}</td>
+                                <td className="pr-2 text-zinc-500">{e.name}</td>
+                                <td className="text-zinc-550">{e.mode}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* 5. Firewall ACL Rules */}
+                    {mode === "firewall" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Firewall Access Rules (ACL)</span>
+                        <div className="space-y-1">
+                          {[
+                            { seq: 10, act: "PERMIT", prot: "tcp", src: "192.168.1.0/24", dst: "any", port: "80 (HTTP)" },
+                            { seq: 20, act: "DENY", prot: "tcp", src: "192.168.1.0/24", dst: "any", port: "22 (SSH)" },
+                            { seq: 30, act: "DENY", prot: "ip", src: "any", dst: "any", port: "any" }
+                          ].map((r) => (
+                            <div 
+                              key={r.seq}
+                              className={`p-1 rounded border text-xs leading-tight flex justify-between items-center transition-all ${
+                                activeAclSeq === r.seq
+                                  ? r.act === "PERMIT"
+                                    ? "bg-emerald-950/40 border-emerald-500/70 text-emerald-300 font-bold"
+                                    : "bg-rose-950/40 border-rose-500/70 text-rose-300 font-bold"
+                                  : "bg-zinc-950/60 border-zinc-900/60 text-zinc-450"
+                              }`}
+                            >
+                              <div>
+                                <span className="text-zinc-500 mr-1 font-bold">{r.seq}</span>
+                                <span className={`font-black mr-1.5 ${r.act === "PERMIT" ? "text-emerald-500" : "text-rose-500"}`}>{r.act}</span>
+                                <span>{r.prot} {r.src} ➔ {r.port}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 6. WLC Client & AP Table */}
+                    {mode === "wlc" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">WLC Controller Status</span>
+                        <div className="space-y-1.5 text-xs text-zinc-455">
+                          <div>
+                            <span className="text-zinc-455 font-bold block uppercase tracking-wide">AP Registration</span>
+                            <div className="flex justify-between mt-0.5 text-zinc-300">
+                              <span>AP-01 (Fa0/5)</span>
+                              <span className="text-emerald-400 font-bold">Joined (192.168.1.5)</span>
+                            </div>
+                          </div>
+                          <div className="border-t border-zinc-900/60 pt-1">
+                            <span className="text-zinc-455 font-bold block uppercase tracking-wide">Active Clients</span>
+                            <div className="flex justify-between mt-0.5 text-zinc-300">
+                              <span>Laptop A (Wifi)</span>
+                              <span className="text-emerald-400 font-bold">Associated</span>
+                            </div>
+                            <div className="text-xs text-zinc-455 pl-1 mt-0.5 font-sans leading-none">
+                              SSID: NetAcademy | IP: 192.168.10.50 | Tunnel: CAPWAP Active
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 7. DHCP Leases Table */}
+                    {mode === "dhcp" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">DHCP Leases DB</span>
+                        <table className="w-full text-left">
+                          <thead>
+                            <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
+                              <th className="pr-2">Client</th>
+                              <th className="pr-2">MAC Address</th>
+                              <th className="pr-2">Leased IP</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {dhcpLeases.map((e, idx) => (
+                              <tr key={idx} className="text-zinc-300">
+                                <td className="pr-2">{e.client}</td>
+                                <td className="pr-2 text-emerald-400 font-bold">{e.mac}</td>
+                                <td className="pr-2">{e.ip}</td>
+                                <td className={e.status === "Active" ? "text-emerald-500 font-bold" : "text-zinc-500"}>{e.status}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* 8. Server Services Monitor */}
+                    {mode === "server" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Server Services Status</span>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${dhcpEnabled ? "bg-emerald-500" : "bg-zinc-700"}`} />
+                            <span className="text-zinc-300">DHCP Daemon: {dhcpEnabled ? `ON (Pool: ${dhcpStart})` : "OFF"}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${dnsEnabled ? "bg-emerald-500" : "bg-zinc-700"}`} />
+                            <span className="text-zinc-300">DNS Daemon: {dnsEnabled ? `ON (${dnsRecords.length} Records)` : "OFF"}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-1.5 h-1.5 rounded-full ${httpEnabled ? "bg-emerald-500" : "bg-zinc-700"}`} />
+                            <span className="text-zinc-300">HTTP Server: {httpEnabled ? "ON (Port 80)" : "OFF"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 9. NAT Translation Table */}
+                    {mode === "nat" && natTable.length > 0 && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">NAT Translation Table</span>
+                        <div className="space-y-1">
+                          <div className="grid grid-cols-3 gap-2 text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
+                            <span>Inside Local</span>
+                            <span>Inside Global</span>
+                            <span>Outside Global</span>
+                          </div>
+                          {natTable.map((row, i) => (
+                            <div key={i} className="grid grid-cols-3 gap-2 text-zinc-300">
+                              <span>{row.localIp}:{row.localPort}</span>
+                              <span className="text-violet-400 font-bold">{row.globalIp}:{row.globalPort}</span>
+                              <span>{row.destIp}:{row.destPort}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Cast Modes Overlays */}
+                    {mode === "unicast" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Unicast Routing Info</span>
+                        <table className="w-full text-left">
+                          <thead>
+                            <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
+                              <th className="pr-2">Destination</th>
+                              <th className="pr-2">Next Hop</th>
+                              <th className="pr-2">Interface</th>
+                              <th>Metric</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { dst: "10.0.0.10 (PC B)", gw: "10.0.0.10", int: "Fa0/1", metric: "1" },
+                              { dst: "10.0.0.20 (PC D)", gw: "10.0.0.20", int: "Fa0/1", metric: "1" },
+                              { dst: "192.168.1.0/24", gw: "0.0.0.0", int: "Fa0/0", metric: "0" }
+                            ].map((e, idx) => (
+                              <tr key={idx} className="text-zinc-300">
+                                <td className="pr-2 text-violet-400 font-bold">{e.dst}</td>
+                                <td className="pr-2">{e.gw}</td>
+                                <td className="pr-2 font-semibold">{e.int}</td>
+                                <td className="text-zinc-550">{e.metric}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {mode === "broadcast" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Broadcast Domain Map</span>
+                        <div className="space-y-1 text-xs text-zinc-455">
+                          <div className="flex justify-between">
+                            <span>Broadcast Address:</span>
+                            <span className="font-mono text-orange-400 font-bold">FF:FF:FF:FF:FF:FF</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Target Subnet:</span>
+                            <span className="font-mono">192.168.1.255 /24</span>
+                          </div>
+                          <div className="border-t border-zinc-900/60 pt-1">
+                            <span className="text-zinc-500 font-bold block uppercase tracking-wide">Flooding Ports</span>
+                            <div className="grid grid-cols-2 gap-1 mt-0.5 text-zinc-300">
+                              <span>Fa0/1 (PC A)</span>
+                              <span>Fa0/2 (PC B)</span>
+                              <span>Fa0/3 (PC C)</span>
+                              <span>Fa0/4 (PC D)</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {mode === "multicast" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">IGMP Group Membership</span>
+                        <table className="w-full text-left">
+                          <thead>
+                            <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
+                              <th className="pr-2">Group IP</th>
+                              <th className="pr-2">Member</th>
+                              <th className="pr-2">Interface</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { grp: "224.0.0.5", member: "PC B", int: "Fa0/2", status: "Active" },
+                              { grp: "224.0.0.5", member: "PC C", int: "Fa0/3", status: "Active" },
+                              { grp: "224.0.0.5", member: "PC D", int: "Fa0/4", status: "Not Joined" }
+                            ].map((e, idx) => (
+                              <tr key={idx} className={e.status === "Active" ? "text-zinc-300" : "text-zinc-455"}>
+                                <td className="pr-2 text-teal-400 font-bold">{e.grp}</td>
+                                <td className="pr-2">{e.member}</td>
+                                <td className="pr-2 font-semibold">{e.int}</td>
+                                <td className={e.status === "Active" ? "text-teal-500 font-bold" : "text-zinc-500"}>{e.status}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {mode === "anycast" && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono space-y-2 shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Anycast Routing Table</span>
+                        <table className="w-full text-left">
+                          <thead>
+                            <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
+                              <th className="pr-2">Shared IP</th>
+                              <th className="pr-2">Server</th>
+                              <th className="pr-2">Metric (Hops)</th>
+                              <th>Path Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[
+                              { ip: "203.0.113.1", node: "PC B (Nearest)", hops: "1", status: "Active (Nearest)" },
+                              { ip: "203.0.113.1", node: "PC C (Farther)", hops: "3", status: "Backup" },
+                              { ip: "203.0.113.1", node: "PC D (Farthest)", hops: "5", status: "Backup" }
+                            ].map((e, idx) => (
+                              <tr key={idx} className="text-zinc-300">
+                                <td className="pr-2 text-pink-400 font-bold">{e.ip}</td>
+                                <td className="pr-2">{e.node}</td>
+                                <td className="pr-2 font-semibold text-center">{e.hops}</td>
+                                <td className={e.status.includes("Nearest") ? "text-pink-500 font-bold animate-pulse" : "text-zinc-455"}>{e.status}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+
+                    {/* IP Lease Summary Badge in DHCP / Server modes */}
+                    {(mode === "dhcp" || mode === "server") && (
+                      <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono shadow-inner">
+                        <span className="font-extrabold text-zinc-400 block mb-0.5 tracking-wider uppercase text-[10px]">IP Lease Status</span>
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <span className={`w-1.5 h-1.5 rounded-full ${nodes["PC A"]?.ip === "0.0.0.0" ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
+                          <span className="text-zinc-300">
+                            PC A: {nodes["PC A"]?.ip === "0.0.0.0" ? "UNCONFIGURED (0.0.0.0)" : `LEASED (${nodes["PC A"]?.ip})`}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Event Log Card */}
+                <div className="flex-1 min-h-0 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-5 flex flex-col overflow-hidden">
+                  <h4 className="font-extrabold text-xs tracking-wider uppercase text-zinc-450 mb-3 shrink-0 flex items-center gap-2">
+                    <Terminal className="w-4 h-4 text-emerald-400" />
+                    Active Event Log
+                  </h4>
+                  <div className="flex-1 bg-zinc-950 rounded-xl p-3 border border-zinc-855 font-mono text-xs text-zinc-500 overflow-y-auto space-y-2">
+                    {logs.map((log, index) => {
+                      const timeMatch = log.match(/^\[\d{2}:\d{2}:\d{2} [AP]M\]/);
+                      let timeStr = "";
+                      let remaining = log;
+                      
+                      if (timeMatch) {
+                        timeStr = timeMatch[0];
+                        remaining = log.slice(timeStr.length).trim();
+                      }
+                      
+                      const tagMatch = remaining.match(/^\[(.*?)\]/);
+                      let tagStr = "";
+                      let message = remaining;
+                      
+                      if (tagMatch) {
+                        tagStr = tagMatch[1];
+                        message = remaining.slice(tagMatch[0].length).trim();
+                      }
+                      
+                      let tagColorClass = "bg-zinc-900/60 text-zinc-400 border-zinc-800/80";
+                      if (tagStr.toLowerCase().includes("error") || tagStr.toLowerCase().includes("fail") || tagStr.toLowerCase().includes("blocked") || tagStr.toLowerCase().includes("collision")) {
+                        tagColorClass = "bg-rose-950/30 text-rose-400 border-rose-900/40";
+                      } else if (tagStr.toLowerCase().includes("success") || tagStr.toLowerCase().includes("established") || tagStr.toLowerCase().includes("ack") || tagStr.toLowerCase().includes("confirm") || tagStr.toLowerCase().includes("match")) {
+                        tagColorClass = "bg-emerald-950/30 text-emerald-400 border-emerald-900/40";
+                      } else if (tagStr.toLowerCase().includes("dhcp") || tagStr.toLowerCase().includes("dns") || tagStr.toLowerCase().includes("http") || tagStr.toLowerCase().includes("nat") || tagStr.toLowerCase().includes("pat") || tagStr.toLowerCase().includes("vlan") || tagStr.toLowerCase().includes("wlc") || tagStr.toLowerCase().includes("capwap")) {
+                        tagColorClass = "bg-sky-950/30 text-sky-400 border-sky-900/40";
+                      } else if (tagStr.toLowerCase().includes("router")) {
+                        tagColorClass = "bg-violet-950/30 text-violet-400 border-violet-900/40";
+                      } else if (tagStr.toLowerCase().includes("firewall")) {
+                        tagColorClass = "bg-amber-950/30 text-amber-400 border-amber-900/40";
+                      }
+                      
+                      let textHighlightClass = "text-zinc-500";
+                      if (log.toLowerCase().includes("collision") || log.toLowerCase().includes("blocked") || log.toLowerCase().includes("error") || log.toLowerCase().includes("mismatch")) {
+                        textHighlightClass = "text-rose-450 font-semibold";
+                      } else if (log.toLowerCase().includes("established") || log.toLowerCase().includes("match") || log.toLowerCase().includes("delivered") || log.toLowerCase().includes("successful")) {
+                        textHighlightClass = "text-zinc-200 font-semibold";
+                      } else if (log.toLowerCase().includes("sending") || log.toLowerCase().includes("forwarding") || log.toLowerCase().includes("transmitting")) {
+                        textHighlightClass = "text-zinc-400";
+                      }
+
+                      return (
+                        <div key={index} className="flex items-start gap-1.5 leading-relaxed text-[8.5px] border-b border-zinc-900/40 pb-1.5 last:border-0 font-mono">
+                          {timeStr && <span className="text-zinc-500 shrink-0 select-none">{timeStr}</span>}
+                          {tagStr && (
+                            <span className={`px-1 py-0.5 rounded text-xs font-extrabold uppercase border shrink-0 ${tagColorClass}`}>
+                              {tagStr}
+                            </span>
+                          )}
+                          <span className={textHighlightClass}>{message}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+              </div> {/* Closes Diagnostics & Event Log Panel Row */}
+            </div> {/* Closes Simulator Column */}
+
+            {/* Controls Column (Configuration Console) */}
+            <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 flex flex-col gap-5 overflow-y-auto min-h-0">
                   <h4 className="font-extrabold text-xs tracking-wider uppercase text-zinc-500">
                     Configuration Console
                   </h4>
@@ -2653,392 +3130,10 @@ export default function DevicesLab() {
                     {mode === "anycast" && (
                       <p>
                         <strong className="text-zinc-200 font-bold block mb-1">Anycast (One-to-Nearest)</strong>
-                        One-to-nearest delivery. Multiple servers share the same IP address. Routers deliver packets to the topologically closest server.
+                        One-to-nearest delivery. Multiple servers share the same IP address. Routers deliver packets to the topologically nearest server node.
                       </p>
                     )}
                   </div>
-
-                  
-
-{/* Dynamic Overlays inside Canvas Container */}
-                  {/* 1. Switch CAM Table */}
-                  {mode === "switch" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">MAC Address Table (CAM)</span>
-                      {camTable.length === 0 ? (
-                        <span className="text-zinc-500 italic block py-0.5">No entries learned yet. Run simulation to populate.</span>
-                      ) : (
-                        <table className="w-full text-left">
-                          <thead>
-                            <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
-                              <th className="pr-2">VLAN</th>
-                              <th className="pr-2">MAC Address</th>
-                              <th className="pr-2">Port</th>
-                              <th>Type</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-zinc-900/40">
-                            {camTable.map((e, idx) => (
-                              <tr key={idx} className="text-zinc-300">
-                                <td className="pr-2">{e.vlan}</td>
-                                <td className="pr-2 text-sky-400 font-bold">{e.mac}</td>
-                                <td className="pr-2 font-semibold">{e.port}</td>
-                                <td className="text-zinc-500">{e.type}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      )}
-                    </div>
-                  )}
-
-                  {/* 2. Bridge Filtering DB */}
-                  {mode === "bridge" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Bridge Filtering Database</span>
-                      <table className="w-full text-left">
-                        <thead>
-                          <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
-                            <th className="pr-2">MAC Address</th>
-                            <th className="pr-2">Port</th>
-                            <th>Segment</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            { mac: "000A.0001.0001", port: "Port 1", seg: "Left (1)" },
-                            { mac: "000A.0001.0003", port: "Port 1", seg: "Left (1)" },
-                            { mac: "000B.0002.0002", port: "Port 2", seg: "Right (2)" },
-                            { mac: "000B.0002.0004", port: "Port 2", seg: "Right (2)" }
-                          ].map((e, idx) => (
-                            <tr key={idx} className="text-zinc-300">
-                              <td className="pr-2 text-sky-400 font-bold">{e.mac}</td>
-                              <td className="pr-2 font-semibold">{e.port}</td>
-                              <td className="text-zinc-500">{e.seg}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* 3. Router Routing Table */}
-                  {mode === "router" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Router Routing Table</span>
-                      <table className="w-full text-left">
-                        <thead>
-                          <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
-                            <th className="pr-2">Network</th>
-                            <th className="pr-2">Gateway</th>
-                            <th className="pr-2">Interface</th>
-                            <th>Type</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            { net: "192.168.1.0/24", gw: "0.0.0.0", int: "Fa0/0", type: "Direct" },
-                            { net: "10.0.0.0/24", gw: "0.0.0.0", int: "Fa0/1", type: "Direct" }
-                          ].map((e, idx) => (
-                            <tr key={idx} className="text-zinc-300">
-                              <td className="pr-2 text-violet-400 font-bold">{e.net}</td>
-                              <td className="pr-2">{e.gw}</td>
-                              <td className="pr-2 font-semibold">{e.int}</td>
-                              <td className="text-zinc-500">{e.type}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* 4. VLAN Port Database */}
-                  {mode === "vlan" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">VLAN Database</span>
-                      <table className="w-full text-left">
-                        <thead>
-                          <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
-                            <th className="pr-2">Port</th>
-                            <th className="pr-2">VLAN</th>
-                            <th className="pr-2">Name</th>
-                            <th>Mode</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            { port: "Fa0/1", vlan: "10", name: "HR", mode: "Access" },
-                            { port: "Fa0/2", vlan: "10", name: "HR", mode: "Access" },
-                            { port: "Fa0/3", vlan: "20", name: "IT", mode: "Access" },
-                            { port: "Fa0/4", vlan: "20", name: "IT", mode: "Access" },
-                            { port: "Gi0/1", vlan: "10,20", name: "Trunk", mode: "Trunk" }
-                          ].map((e, idx) => (
-                            <tr key={idx} className="text-zinc-300">
-                              <td className="pr-2 font-bold text-sky-400">{e.port}</td>
-                              <td className="pr-2">{e.vlan}</td>
-                              <td className="pr-2 text-zinc-500">{e.name}</td>
-                              <td className="text-zinc-500">{e.mode}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* 5. Firewall ACL Rules */}
-                  {mode === "firewall" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Firewall Access Rules (ACL)</span>
-                      <div className="space-y-1">
-                        {[
-                          { seq: 10, act: "PERMIT", prot: "tcp", src: "192.168.1.0/24", dst: "any", port: "80 (HTTP)" },
-                          { seq: 20, act: "DENY", prot: "tcp", src: "192.168.1.0/24", dst: "any", port: "22 (SSH)" },
-                          { seq: 30, act: "DENY", prot: "ip", src: "any", dst: "any", port: "any" }
-                        ].map((r) => (
-                          <div 
-                            key={r.seq}
-                            className={`p-1 rounded border text-xs leading-tight flex justify-between items-center transition-all ${
-                              activeAclSeq === r.seq
-                                ? r.act === "PERMIT"
-                                  ? "bg-emerald-950/40 border-emerald-500/70 text-emerald-300 font-bold"
-                                  : "bg-rose-950/40 border-rose-500/70 text-rose-300 font-bold"
-                                : "bg-zinc-950/60 border-zinc-900/60 text-zinc-450"
-                            }`}
-                          >
-                            <div>
-                              <span className="text-zinc-500 mr-1 font-bold">{r.seq}</span>
-                              <span className={`font-black mr-1.5 ${r.act === "PERMIT" ? "text-emerald-500" : "text-rose-500"}`}>{r.act}</span>
-                              <span>{r.prot} {r.src} ➔ {r.port}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 6. WLC Client & AP Table */}
-                  {mode === "wlc" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">WLC Controller Status</span>
-                      <div className="space-y-1.5 text-xs text-zinc-450">
-                        <div>
-                          <span className="text-zinc-450 font-bold block uppercase tracking-wide">AP Registration</span>
-                          <div className="flex justify-between mt-0.5 text-zinc-300">
-                            <span>AP-01 (Fa0/5)</span>
-                            <span className="text-emerald-400 font-bold">Joined (192.168.1.5)</span>
-                          </div>
-                        </div>
-                        <div className="border-t border-zinc-900/60 pt-1">
-                          <span className="text-zinc-450 font-bold block uppercase tracking-wide">Active Clients</span>
-                          <div className="flex justify-between mt-0.5 text-zinc-300">
-                            <span>Laptop A (Wifi)</span>
-                            <span className="text-emerald-400 font-bold">Associated</span>
-                          </div>
-                          <div className="text-xs text-zinc-450 pl-1 mt-0.5 font-sans leading-none">
-                            SSID: NetAcademy | IP: 192.168.10.50 | Tunnel: CAPWAP Active
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 7. DHCP Leases Table */}
-                  {mode === "dhcp" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">DHCP Leases DB</span>
-                      <table className="w-full text-left">
-                        <thead>
-                          <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
-                            <th className="pr-2">Client</th>
-                            <th className="pr-2">MAC Address</th>
-                            <th className="pr-2">Leased IP</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {dhcpLeases.map((e, idx) => (
-                            <tr key={idx} className="text-zinc-300">
-                              <td className="pr-2">{e.client}</td>
-                              <td className="pr-2 text-emerald-400 font-bold">{e.mac}</td>
-                              <td className="pr-2">{e.ip}</td>
-                              <td className={e.status === "Active" ? "text-emerald-500 font-bold" : "text-zinc-500"}>{e.status}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* 8. Server Services Monitor */}
-                  {mode === "server" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Server Services Status</span>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className={`w-1.5 h-1.5 rounded-full ${dhcpEnabled ? "bg-emerald-500" : "bg-zinc-700"}`} />
-                          <span className="text-zinc-300">DHCP Daemon: {dhcpEnabled ? `ON (Pool: ${dhcpStart})` : "OFF"}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className={`w-1.5 h-1.5 rounded-full ${dnsEnabled ? "bg-emerald-500" : "bg-zinc-700"}`} />
-                          <span className="text-zinc-300">DNS Daemon: {dnsEnabled ? `ON (${dnsRecords.length} Records)` : "OFF"}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5">
-                          <span className={`w-1.5 h-1.5 rounded-full ${httpEnabled ? "bg-emerald-500" : "bg-zinc-700"}`} />
-                          <span className="text-zinc-300">HTTP Server: {httpEnabled ? "ON (Port 80)" : "OFF"}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* 9. NAT Translation Table */}
-                  {mode === "nat" && natTable.length > 0 && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">NAT Translation Table</span>
-                      <div className="space-y-1">
-                        <div className="grid grid-cols-3 gap-2 text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
-                          <span>Inside Local</span>
-                          <span>Inside Global</span>
-                          <span>Outside Global</span>
-                        </div>
-                        {natTable.map((row, i) => (
-                          <div key={i} className="grid grid-cols-3 gap-2 text-zinc-300">
-                            <span>{row.localIp}:{row.localPort}</span>
-                            <span className="text-violet-400 font-bold">{row.globalIp}:{row.globalPort}</span>
-                            <span>{row.destIp}:{row.destPort}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Cast Modes Overlays */}
-                  {mode === "unicast" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Unicast Routing Info</span>
-                      <table className="w-full text-left">
-                        <thead>
-                          <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
-                            <th className="pr-2">Destination</th>
-                            <th className="pr-2">Next Hop</th>
-                            <th className="pr-2">Interface</th>
-                            <th>Metric</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            { dst: "10.0.0.10 (PC B)", gw: "10.0.0.10", int: "Fa0/1", metric: "1" },
-                            { dst: "10.0.0.20 (PC D)", gw: "10.0.0.20", int: "Fa0/1", metric: "1" },
-                            { dst: "192.168.1.0/24", gw: "0.0.0.0", int: "Fa0/0", metric: "0" }
-                          ].map((e, idx) => (
-                            <tr key={idx} className="text-zinc-300">
-                              <td className="pr-2 text-violet-400 font-bold">{e.dst}</td>
-                              <td className="pr-2">{e.gw}</td>
-                              <td className="pr-2 font-semibold">{e.int}</td>
-                              <td className="text-zinc-500">{e.metric}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {mode === "broadcast" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Broadcast Domain Map</span>
-                      <div className="space-y-1 text-xs text-zinc-450">
-                        <div className="flex justify-between">
-                          <span>Broadcast Address:</span>
-                          <span className="font-mono text-orange-400 font-bold">FF:FF:FF:FF:FF:FF</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Target Subnet:</span>
-                          <span className="font-mono">192.168.1.255 /24</span>
-                        </div>
-                        <div className="border-t border-zinc-900/60 pt-1">
-                          <span className="text-zinc-500 font-bold block uppercase tracking-wide">Flooding Ports</span>
-                          <div className="grid grid-cols-2 gap-1 mt-0.5 text-zinc-300">
-                            <span>Fa0/1 (PC A)</span>
-                            <span>Fa0/2 (PC B)</span>
-                            <span>Fa0/3 (PC C)</span>
-                            <span>Fa0/4 (PC D)</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {mode === "multicast" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">IGMP Group Membership</span>
-                      <table className="w-full text-left">
-                        <thead>
-                          <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
-                            <th className="pr-2">Group IP</th>
-                            <th className="pr-2">Member</th>
-                            <th className="pr-2">Interface</th>
-                            <th>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            { grp: "224.0.0.5", member: "PC B", int: "Fa0/2", status: "Active" },
-                            { grp: "224.0.0.5", member: "PC C", int: "Fa0/3", status: "Active" },
-                            { grp: "224.0.0.5", member: "PC D", int: "Fa0/4", status: "Not Joined" }
-                          ].map((e, idx) => (
-                            <tr key={idx} className={e.status === "Active" ? "text-zinc-300" : "text-zinc-450"}>
-                              <td className="pr-2 text-teal-400 font-bold">{e.grp}</td>
-                              <td className="pr-2">{e.member}</td>
-                              <td className="pr-2 font-semibold">{e.int}</td>
-                              <td className={e.status === "Active" ? "text-teal-500 font-bold" : "text-zinc-500"}>{e.status}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {mode === "anycast" && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block text-xs tracking-wider uppercase border-b border-zinc-900 pb-1">Anycast Routing Table</span>
-                      <table className="w-full text-left">
-                        <thead>
-                          <tr className="text-zinc-600 font-bold uppercase text-xs border-b border-zinc-900 pb-0.5">
-                            <th className="pr-2">Shared IP</th>
-                            <th className="pr-2">Server</th>
-                            <th className="pr-2">Metric (Hops)</th>
-                            <th>Path Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {[
-                            { ip: "203.0.113.1", node: "PC B (Nearest)", hops: "1", status: "Active (Nearest)" },
-                            { ip: "203.0.113.1", node: "PC C (Farther)", hops: "3", status: "Backup" },
-                            { ip: "203.0.113.1", node: "PC D (Farthest)", hops: "5", status: "Backup" }
-                          ].map((e, idx) => (
-                            <tr key={idx} className="text-zinc-300">
-                              <td className="pr-2 text-pink-400 font-bold">{e.ip}</td>
-                              <td className="pr-2">{e.node}</td>
-                              <td className="pr-2 font-semibold text-center">{e.hops}</td>
-                              <td className={e.status.includes("Nearest") ? "text-pink-500 font-bold animate-pulse" : "text-zinc-450"}>{e.status}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* IP Lease Summary Badge in DHCP / Server modes */}
-                  {(mode === "dhcp" || mode === "server") && (
-                    <div className="w-full bg-zinc-950 border border-zinc-850 rounded-xl p-4 text-xs font-mono mt-4 space-y-2 shadow-inner">
-                      <span className="font-extrabold text-zinc-400 block mb-0.5 tracking-wider uppercase text-xs">IP Lease Status</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${nodes["PC A"]?.ip === "0.0.0.0" ? "bg-amber-500 animate-pulse" : "bg-emerald-500"}`} />
-                        <span className="text-zinc-300">
-                          PC A: {nodes["PC A"]?.ip === "0.0.0.0" ? "UNCONFIGURED (0.0.0.0)" : `LEASED (${nodes["PC A"]?.ip})`}
-                        </span>
-                      </div>
-                    </div>
-                  )}
 
 {/* Contextual Action Buttons */}
                   <div className="flex flex-col gap-2.5 mt-1">
@@ -3199,72 +3294,7 @@ export default function DevicesLab() {
                     )}
                   </div>
                 </div>
-
-                {/* Event Log Card */}
-                <div className="h-[180px] shrink-0 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-5 flex flex-col">
-                  <h4 className="font-extrabold text-xs tracking-wider uppercase text-zinc-500 mb-3">
-                    Active Event Log
-                  </h4>
-                  <div className="flex-1 bg-zinc-950 rounded-xl p-3 border border-zinc-855 font-mono text-xs text-zinc-500 overflow-y-auto space-y-2">
-                    {logs.map((log, index) => {
-                      const timeMatch = log.match(/^\[\d{2}:\d{2}:\d{2} [AP]M\]/);
-                      let timeStr = "";
-                      let remaining = log;
-                      
-                      if (timeMatch) {
-                        timeStr = timeMatch[0];
-                        remaining = log.slice(timeStr.length).trim();
-                      }
-                      
-                      const tagMatch = remaining.match(/^\[(.*?)\]/);
-                      let tagStr = "";
-                      let message = remaining;
-                      
-                      if (tagMatch) {
-                        tagStr = tagMatch[1];
-                        message = remaining.slice(tagMatch[0].length).trim();
-                      }
-                      
-                      let tagColorClass = "bg-zinc-900/60 text-zinc-400 border-zinc-800/80";
-                      if (tagStr.toLowerCase().includes("error") || tagStr.toLowerCase().includes("fail") || tagStr.toLowerCase().includes("blocked") || tagStr.toLowerCase().includes("collision")) {
-                        tagColorClass = "bg-rose-950/30 text-rose-400 border-rose-900/40";
-                      } else if (tagStr.toLowerCase().includes("success") || tagStr.toLowerCase().includes("established") || tagStr.toLowerCase().includes("ack") || tagStr.toLowerCase().includes("confirm") || tagStr.toLowerCase().includes("match")) {
-                        tagColorClass = "bg-emerald-950/30 text-emerald-400 border-emerald-900/40";
-                      } else if (tagStr.toLowerCase().includes("dhcp") || tagStr.toLowerCase().includes("dns") || tagStr.toLowerCase().includes("http") || tagStr.toLowerCase().includes("nat") || tagStr.toLowerCase().includes("pat") || tagStr.toLowerCase().includes("vlan") || tagStr.toLowerCase().includes("wlc") || tagStr.toLowerCase().includes("capwap")) {
-                        tagColorClass = "bg-sky-950/30 text-sky-400 border-sky-900/40";
-                      } else if (tagStr.toLowerCase().includes("router")) {
-                        tagColorClass = "bg-violet-950/30 text-violet-400 border-violet-900/40";
-                      } else if (tagStr.toLowerCase().includes("firewall")) {
-                        tagColorClass = "bg-amber-950/30 text-amber-400 border-amber-900/40";
-                      }
-                      
-                      let textHighlightClass = "text-zinc-500";
-                      if (log.toLowerCase().includes("collision") || log.toLowerCase().includes("blocked") || log.toLowerCase().includes("error") || log.toLowerCase().includes("mismatch")) {
-                        textHighlightClass = "text-rose-450 font-semibold";
-                      } else if (log.toLowerCase().includes("established") || log.toLowerCase().includes("match") || log.toLowerCase().includes("delivered") || log.toLowerCase().includes("successful")) {
-                        textHighlightClass = "text-zinc-200 font-semibold";
-                      } else if (log.toLowerCase().includes("sending") || log.toLowerCase().includes("forwarding") || log.toLowerCase().includes("transmitting")) {
-                        textHighlightClass = "text-zinc-400";
-                      }
-
-                      return (
-                        <div key={index} className="flex items-start gap-1.5 leading-relaxed text-[8.5px] border-b border-zinc-900/40 pb-1.5 last:border-0 font-mono">
-                          {timeStr && <span className="text-zinc-500 shrink-0 select-none">{timeStr}</span>}
-                          {tagStr && (
-                            <span className={`px-1 py-0.5 rounded text-xs font-extrabold uppercase border shrink-0 ${tagColorClass}`}>
-                              {tagStr}
-                            </span>
-                          )}
-                          <span className={textHighlightClass}>{message}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
               </div>
-
-            </div>
           ) : (
             /* Notebook Section */
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-zinc-900/40 border border-zinc-800/80 rounded-2xl p-6 flex-1 glow-card overflow-hidden min-h-0">
